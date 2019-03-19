@@ -1,9 +1,10 @@
 import gym
 from gym.core import ObservationWrapper
 from gym.spaces import Box
-import cv2
+import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 class PreprocessAtari(ObservationWrapper):
     def __init__(self, env):
@@ -24,12 +25,12 @@ class PreprocessAtari(ObservationWrapper):
         #  * cast image to grayscale
         #  * convert image pixels to (0,1) range, float32 type
 
-        #img = img[16:-16, :]
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img = cv2.resize(img, (self.img_size[1], self.img_size[1]))
+        img = img[30:-10, 8:-8, :]
+        img = cv.resize(img, (64, 64))
+        img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
         img = img / 255
-
-        return np.expand_dims(img.astype(np.float32), axis=0)
+        img = img.reshape(self.img_size)
+        return img.astype(np.float32)
 
 
 if __name__ == '__main__':
