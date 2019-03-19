@@ -37,8 +37,8 @@ def test_get_cumulative_rewards():
 class ReinforceAgent(nn.Module):
     def __init__(self, state_dim, n_actions):
         super(ReinforceAgent, self).__init__()
-        self.fc1 = nn.Linear(state_dim[0], 42)
-        self.fc2 = nn.Linear(42, n_actions)
+        self.fc1 = nn.Linear(state_dim[0], 50)
+        self.fc2 = nn.Linear(50, n_actions)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -53,7 +53,7 @@ def predict_proba(states):
     :returns: numpy array of shape [batch, n_actions]
     """
     # convert states, compute logits, use softmax to get probability
-    probs = F.softmax(agent(torch.Tensor(states))).data.numpy()
+    probs = F.softmax(agent(torch.FloatTensor(states)), dim=1).data.numpy()
     return probs
 
 
@@ -65,13 +65,12 @@ def generate_session(t_max=1000):
     """
     # arrays to record session
     states, actions, rewards = [], [], []
-
     s = env.reset()
     for t in range(t_max):
 
         # action probabilities array aka pi(a|s)
-        action_probas = predict_proba(np.array([s]))[0]
-        a = np.argmax(action_probas)
+        action_probas = predict_proba([s])[0]
+        a = np.random.choice(n_actions, p=action_probas)
         new_s, r, done, info = env.step(a)
 
         # record session history to train later
